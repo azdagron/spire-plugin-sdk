@@ -1,0 +1,44 @@
+// A Signing Request Hook hooks signing requests in order to influence the
+// attributes of X.509 certificates and JWT tokens minted by or on behalf of
+// SPIRE Server.
+
+syntax = "proto3";
+package spire.plugin.server.credentialcomposer.v1;
+option go_package = "github.com/spiffe/spire-plugin-sdk/proto/spire/plugin/server/credentialcomposer/v1;credentialcomposerv1";
+
+service CredentialComposer {
+    rpc ComposeServerX509CA(ComposeServerX509CARequest) returns (ComposeServerX509CAResponse);
+    rpc ComposeServerX509SVID(ComposeServerX509SVIDRequest) returns (ComposeServerX509SVIDResponse);
+    rpc ComposeAgentX509SVID(ComposeAgentX509SVIDRequest) returns (ComposeAgentX509SVIDResponse);
+    rpc ComposeWorkloadX509SVID(ComposeWorkloadX509SVIDRequest) returns (ComposeWorkloadX509SVIDResponse);
+    rpc ComposeWorkloadJWTSVID(ComposeWorkloadJWTSVIDRequest) returns (ComposeWorkloadJWTSVIDResponse);
+}
+
+message ComposeWorkloadX509SVIDRequest {
+    // The default attributes for the X509-SVID
+    X509SVIDAttributes attributes = 1;
+
+    // The SPIFFE ID of the workload.
+    string spiffe_id = 2;
+
+    // PKIX encoded public key of the workload.
+    bytes public_key = 3;
+}
+
+message ComposeWorkloadX509SVIDResponse {
+    // The attributes for the X509-SVID. If not included in the response, the
+    // default attributes sent in the request will be used.
+    X509SVIDAttributes attributes = 1;
+}
+
+message X509SVIDAttributes {
+    PKIXName subject = 1;
+    repeated string dns_sans = 2;
+    repeated X509Extension extra_extensions = 3;
+}
+
+message X509Extension {
+    string oid = 1;
+    bytes value = 2;
+    bool critical = 3;
+}
